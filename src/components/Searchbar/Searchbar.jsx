@@ -1,6 +1,9 @@
 import { Component } from 'react';
+import { ImSearch } from 'react-icons/im';
+import { toast } from 'react-toastify';
+
 import {
-  SearchbarHeader,
+  Header,
   SearchForm,
   SearchButton,
   SearchButtonLabel,
@@ -13,20 +16,26 @@ export class SearchBar extends Component {
   };
 
   handleChange = event => {
-    this.setState({ name: event.target.value });
+    this.setState({ searchName: event.target.value });
   };
 
   handleSubmit = event => {
     event.preventDefault();
-    this.props.onGetSearchValue(this.state.name);
-    this.setState({ name: '' });
+
+    if (this.state.searchName.trim() === '') {
+      return toast.warn('Введіть значення для пошуку');
+    }
+
+    this.props.onGetSearchValue(this.state.searchName);
+    this.setState({ searchName: '' });
   };
 
   render() {
     return (
-      <SearchbarHeader>
+      <Header>
         <SearchForm onSubmit={this.handleSubmit}>
           <SearchButton type="submit">
+            <ImSearch />
             <SearchButtonLabel>Search</SearchButtonLabel>
           </SearchButton>
 
@@ -34,12 +43,12 @@ export class SearchBar extends Component {
             onChange={this.handleChange}
             type="text"
             autoComplete="off"
-            value={this.state.name}
+            value={this.state.searchName}
             autoFocus
             placeholder="Search images and photos"
           />
         </SearchForm>
-      </SearchbarHeader>
+      </Header>
     );
   }
 }

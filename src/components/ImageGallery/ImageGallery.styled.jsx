@@ -4,7 +4,7 @@ import styled from 'styled-components';
  * Стили компонента ImageGallery
  */
 
-export const ImageGallery = styled.ul`
+export const ImageGalleryBox = styled.ul`
   display: grid;
   max-width: calc(100vw - 48px);
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
