@@ -23,7 +23,7 @@ export class SearchBar extends Component {
     event.preventDefault();
 
     if (this.state.searchName.trim() === '') {
-      return toast.warn('Введіть значення для пошуку');
+      return toast.warn('Please enter text!');
     }
 
     this.props.onGetSearchValue(this.state.searchName);
