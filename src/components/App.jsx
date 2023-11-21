@@ -17,10 +17,13 @@ export class App extends Component {
     loading: false,
     largeImage: null,
     showModal: false,
+    totalImage: 0,
   };
 
   componentDidUpdate(_, prevState) {
-    if (prevState.searchValue !== this.state.searchValue) {
+    const { searchValue, page } = this.state;
+
+    if (searchValue !== prevState.searchValue || page !== prevState.page) {
       this.fetchData();
     }
   }
@@ -30,22 +33,30 @@ export class App extends Component {
     this.setState({ loading: true });
 
     try {
-      const imageData = await getImage(searchValue, page);
+      const { hits, totalHits } = await getImage(searchValue, page);
 
-      this.setState(
-        prevState => ({
-          images: [...prevState.images, ...imageData],
-          page: prevState.page + 1,
-          loading: false,
-        }),
-        () => {
-          console.log(this.state.images[0].largeImageURL);
-        }
-      );
+      if (hits.length === 0) {
+        toast.warn(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+        return;
+      }
+
+      this.setState(prevState => ({
+        images: [...prevState.images, ...hits],
+        page: prevState.page + 1,
+        loading: false,
+        totalImage: totalHits || prevState.totalHits,
+      }));
     } catch (error) {
-      toast
-        .error('Error fetching images:', error)
-        .finally(() => this.setState({ loading: false }));
+      if (error.response.status === 404) {
+        toast.error('Not Found!', error);
+      }
+      if (error.response.status === 400) {
+        toast.error('Bad Request!', error);
+      }
+    } finally {
+      this.setState({ loading: false });
     }
   };
 
@@ -59,7 +70,7 @@ export class App extends Component {
 
   handleClickImage = largeImage => {
     // console.log('Click!');
-    console.log(largeImage);
+    // console.log(largeImage);
     this.setState({ largeImage });
   };
 
@@ -68,20 +79,25 @@ export class App extends Component {
   };
 
   render() {
-    const { images, loading, searchValue, largeImage } = this.state;
+    const { images, loading, largeImage, totalImage } = this.state;
 
     return (
       <>
         <SearchBar onGetSearchValue={this.handleSearchValue}></SearchBar>
-        {!searchValue && <h1>Please enter the text to search</h1>}
+
         <ImageGallery
           images={images}
-          onClick={() => {
-            this.handleClickImage(images[0].largeImageURL);
+          onClick={selectedImage => {
+            this.handleClickImage(selectedImage);
           }}
         ></ImageGallery>
+
         {loading && <Loader />}
-        {images.length > 0 && <Button onClick={this.handleLoadMore} />}
+
+        {totalImage > images.length && !!totalImage && (
+          <Button onClick={this.handleLoadMore} />
+        )}
+
         {largeImage && (
           <Modal imageURL={largeImage} onClose={this.handleCloseModal} />
         )}

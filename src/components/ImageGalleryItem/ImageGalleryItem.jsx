@@ -6,12 +6,14 @@ import {
 export const ImageGalleryItem = ({ image, onClick }) => {
   // console.log(image.largeImageURL);
   return (
-    <ImageGalleryCard
-      onClick={() => {
-        onClick(image.largeImageURL);
-      }}
-    >
-      <ImageGalleryPicture src={image.webformatURL} alt={image.id} />
+    <ImageGalleryCard>
+      <ImageGalleryPicture
+        src={image.webformatURL}
+        alt={image.id}
+        onClick={() => {
+          onClick(image.largeImageURL);
+        }}
+      />
     </ImageGalleryCard>
   );
 };
