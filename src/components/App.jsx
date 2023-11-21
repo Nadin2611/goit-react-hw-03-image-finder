@@ -21,9 +21,9 @@ export class App extends Component {
   };
 
   componentDidUpdate(_, prevState) {
-    const { searchValue, page } = this.state;
+    const { searchValue } = this.state;
 
-    if (searchValue !== prevState.searchValue || page !== prevState.page) {
+    if (searchValue !== prevState.searchValue) {
       this.fetchData();
     }
   }
@@ -37,23 +37,35 @@ export class App extends Component {
 
       if (hits.length === 0) {
         toast.warn(
-          'Sorry, there are no images matching your search query. Please try again.'
+          `Sorry, there are no images matching your search query. Please try again.`
         );
         return;
       }
 
-      this.setState(prevState => ({
-        images: [...prevState.images, ...hits],
-        page: prevState.page + 1,
-        loading: false,
-        totalImage: totalHits || prevState.totalHits,
-      }));
+      if (page === Math.ceil(totalHits / 12)) {
+        toast.info(
+          `We're sorry, but you've reached the end of search results.`
+        );
+      }
+
+      this.setState(
+        prevState => ({
+          images: [...prevState.images, ...hits],
+          page: prevState.page + 1,
+          loading: false,
+          totalImage: totalHits || prevState.totalHits,
+        }),
+        () => {
+          toast.success(`Hooray! We found ${this.state.totalImage} images.`);
+          return;
+        }
+      );
     } catch (error) {
       if (error.response.status === 404) {
-        toast.error('Not Found!', error);
+        toast.error(`Not Found!`, error);
       }
       if (error.response.status === 400) {
-        toast.error('Bad Request!', error);
+        toast.error(`Bad Request!`, error);
       }
     } finally {
       this.setState({ loading: false });
@@ -94,7 +106,7 @@ export class App extends Component {
 
         {loading && <Loader />}
 
-        {totalImage > images.length && !!totalImage && (
+        {totalImage > images.length && !loading && (
           <Button onClick={this.handleLoadMore} />
         )}
 
