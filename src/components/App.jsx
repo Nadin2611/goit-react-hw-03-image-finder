@@ -21,9 +21,9 @@ export class App extends Component {
   };
 
   componentDidUpdate(_, prevState) {
-    const { searchValue } = this.state;
+    const { page, searchValue } = this.state;
 
-    if (searchValue !== prevState.searchValue) {
+    if (searchValue !== prevState.searchValue || page !== prevState.page) {
       this.fetchData();
     }
   }
@@ -48,12 +48,16 @@ export class App extends Component {
         );
       }
 
+      // if (hits.length !== 0) {
+      //   toast.success(`Hooray! We found ${this.state.totalImage} images.`);
+      //   return;
+      // }
+
       this.setState(
         prevState => ({
           images: [...prevState.images, ...hits],
-          page: prevState.page + 1,
           loading: false,
-          totalImage: totalHits || prevState.totalHits,
+          totalImage: totalHits,
         }),
         () => {
           toast.success(`Hooray! We found ${this.state.totalImage} images.`);
@@ -77,7 +81,9 @@ export class App extends Component {
   };
 
   handleLoadMore = () => {
-    this.fetchData();
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
   };
 
   handleClickImage = largeImage => {
