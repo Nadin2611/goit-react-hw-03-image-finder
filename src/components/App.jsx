@@ -18,6 +18,7 @@ export class App extends Component {
     largeImage: null,
     showModal: false,
     totalImage: 0,
+    successDislayedMessage: false,
   };
 
   componentDidUpdate(_, prevState) {
@@ -29,7 +30,7 @@ export class App extends Component {
   }
 
   fetchData = async () => {
-    const { searchValue, page } = this.state;
+    const { searchValue, page, successDislayedMessage } = this.state;
     this.setState({ loading: true });
 
     try {
@@ -48,11 +49,6 @@ export class App extends Component {
         );
       }
 
-      // if (hits.length !== 0) {
-      //   toast.success(`Hooray! We found ${this.state.totalImage} images.`);
-      //   return;
-      // }
-
       this.setState(
         prevState => ({
           images: [...prevState.images, ...hits],
@@ -60,8 +56,10 @@ export class App extends Component {
           totalImage: totalHits,
         }),
         () => {
-          toast.success(`Hooray! We found ${this.state.totalImage} images.`);
-          return;
+          if (!successDislayedMessage) {
+            toast.success(`Hooray! We found ${this.state.totalImage} images.`);
+            this.setState({ successDislayedMessage: true });
+          }
         }
       );
     } catch (error) {
